@@ -2,7 +2,7 @@
 This is an example implementation of a simple IRC echo bot using this IRC client framework.
 Before you read this, you must read and understand the [[./guide.org][User's Guide]] and the [[./reference.org][Reference Manual]].
 
-To implement out bot we must create the irc_settings module and out handler function:
+To implement the bot we must create the irc_settings module and its handler function:
 
 *** irc_settings
 In a new file called ~irc_settings.erl~ add the following code:
@@ -39,10 +39,15 @@ to run this example.
 
 *** Handler
 As you can see in the previous section, we set our handler function to
-be ~irc_dispatcher:message/2~. In a file called ~irc_settings.erl~ add
+be ~irc_dispatcher:message/2~. In a file called ~irc_dispatcher.erl~ add
 the following code:
 
 #+BEGIN_SRC erlang
+  -module(irc_dispatcher).
+
+  -export([message/2]).
+
+
   message(Id, Message) ->
       case irc_parser:get_command(Message) of
           <<"PRIVMSG">> ->
