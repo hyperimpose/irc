@@ -1,0 +1,35 @@
+%%--------------------------------------------------------------------
+%% Copyright (C) 2023 hyperimpose.org
+%%
+%% This file is part of irc.
+%%
+%% This program is free software: you can redistribute it and/or modify
+%% it under the terms of the GNU Affero General Public License as published
+%% by the Free Software Foundation, version 3.
+%%
+%% This program is distributed in the hope that it will be useful,
+%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%% GNU Affero General Public License for more details.
+%%
+%% You should have received a copy of the GNU Affero General Public License
+%% along with this program.  If not, see <https://www.gnu.org/licenses/>.
+%%--------------------------------------------------------------------
+
+{application, irc,
+ [{description, "IRC client library"},
+  {vsn, "=version="},
+  {modules, [irc, irc_app, irc_sup,
+             %% irc_client
+             irc_channel, irc_client, irc_client_sup, irc_config, irc_isupport,
+             irc_runtime, irc_send, irc_state, ircv3, ircv3_cap,
+             ircv3_sasl,
+             %% irc_messages
+             irc_command, irc_make, irc_parser,
+             %% lib
+             irc_zipper]},
+  {registered, [irc_sup]},
+  {applications, [kernel, stdlib]},
+  {mod, {irc_app, []}},
+  {env, [{irc_config_module, irc_settings}]}
+ ]}.

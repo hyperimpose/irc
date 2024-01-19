@@ -1,0 +1,33 @@
+#+OPTIONS: ^:nil
+
+* irc
+
+*This is a pre-release version and its API may break*
+
+An irc client library for Erlang.
+
+https://hyperimpose.org/irc_client
+
+
+** Main Features
+Some of the features offered are:
+
+- An extensive implementation of the IRC protocol
+- ISUPPORT, IRCv3, CTCP support
+- Easy access to the connection state
+- Multiple connections
+
+** Documentation
+
+- [[./doc/guide.org][User's guide]] :: Building, basic concepts
+- [[./doc/usage.org][Usage Example]] :: An example echo bot
+- [[./doc/reference.org][Reference Manual]] :: List of all the modules and functions offered
+
+** License
+
+irc is licensed under the [[https://www.gnu.org/licenses/agpl-3.0.html][GNU Affero General Public License version 3 (AGPLv3)]].
+#+BEGIN_CENTER
+[[https://www.gnu.org/graphics/agplv3-with-text-162x68.png]]
+#+END_CENTER
+
+A copy of this license is included in the file [[../../COPYING][COPYING]].
