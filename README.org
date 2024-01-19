@@ -6,9 +6,6 @@
 
 An irc client library for Erlang.
 
-https://hyperimpose.org/irc_client
-
-
 ** Main Features
 Some of the features offered are:
 
