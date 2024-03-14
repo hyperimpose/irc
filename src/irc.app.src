@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright (C) 2023 hyperimpose.org
+%% Copyright (C) 2023-2024 hyperimpose.org
 %%
 %% This file is part of irc.
 %%
@@ -30,6 +30,5 @@
              irc_zipper]},
   {registered, [irc_sup]},
   {applications, [kernel, stdlib]},
-  {mod, {irc_app, []}},
-  {env, [{irc_config_module, irc_settings}]}
+  {mod, {irc_app, []}}
  ]}.

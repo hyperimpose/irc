@@ -7,7 +7,7 @@ application.
 
 - irc :: Starting and stopping IRC clients
 - irc_channel :: Get information about joined IRC channels
-- irc_config :: Read the options from the irc_settings module
+- irc_config :: Get and set the configuration
 - irc_isupport :: Get the value of the options given in the 005 ISUPPORT numeric
 - irc_send :: Schedule and send messages to the IRC server
 - irc_state :: View the current state of the IRC client
@@ -20,8 +20,7 @@ application.
 This module provides functions for connecting and disconnecting IRC
 clients.
 
-/Before you can use these functions you must setup your irc_settings
-module and your handler function./
+/Before you can use these functions you must configure the library using the irc_config module./
 
 - ~irc:connect(Id :: atom()) -> supervisor:startchild().~
 - ~irc:disconnect(Id :: atom()) -> ok | {error, not_found | running | restarting}.~
@@ -32,20 +31,19 @@ functions of this module (prefixed with get_ or has_). View the source code to s
 functions.
 
 ** irc_config [[../src/irc_client/irc_config.erl][[View source]​]]
-This module gives access to the configuration options of the irc_settings module you supplied.
-The ~get/1~ function returns the config map in its entirety. You can then use the rest of the
-functions to gain access to individual options. View the source code to see all the available
+This module gives access to the configuration options.
+The ~get/1~ and ~set/2~ functions work using complete configuration maps. You can then use the rest
+of the functions to get or set individual options. View the source code to see all the available
 functions.
 
 ***** NOTE 1
-Never access the values directly from the map returned by get/1.
-Always use the functions provided.
+Never access, set or construct the configuration directly. Always use the functions provided.
 The returned data structure is for internal use only and might change in the future.
 
 ***** NOTE 2
-To gain access to the options that are used by the IRC client runtime then use ~irc_state:get_config/1~.
+To gain access to the options that are used by the IRC client runtime use ~irc_state:get_config/1~.
 
-Using ~irc_config:get/1~ gets the options from the irc_settings module you provided. If those are updated
+Using ~irc_config:get/1~ gets the options meant for bootstrapping the connection. If those are updated
 after the IRC client has been started they will be out of sync. This happens because the IRC client gets
 the configuration options only when it is started and then it caches them internally. The new values will
 be retrieved only if the client crashes and gets restarted by its supervisor or if you manually disconnect
@@ -54,10 +52,6 @@ and reconnect it.
 After you get the options using one of the functions mentioned above you can then access their values using
 the rest of the functions from the irc_config module.
 
-***** NOTE 3
-The config as returned by your irc_settings module may be incompatible with the getter functions of the
-irc_config module. Always use ~irc_config:get/1~ to get the options.
-
 ** irc_isupport [[../src/irc_client/irc_isupport.erl][[View source]​]]
 This module provides access to the values of the 005 ISUPPORT numeric.  You are only allowed to use
 the getterfunctions of this module (prefixed with get_ or is_).  View the source code to see all
@@ -65,7 +59,7 @@ the available functions.
 
 ** irc_send [[../src/irc_client/irc_send.erl][[View source]​]]
 Schedule and send messages to the IRC server. The behaviour of this module can be configured through
-irc_settings. Read the comments in the source code to get an understanding of its behaviour.
+irc_config. Read the comments in the source code to get an understanding of its behaviour.
 
 Only the function ~schedule/2~ is meant to be used externally.
 

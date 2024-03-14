@@ -2,45 +2,10 @@
 This is an example implementation of a simple IRC echo bot using this IRC client framework.
 Before you read this, you must read and understand the [[./guide.org][User's Guide]] and the [[./reference.org][Reference Manual]].
 
-To implement the bot we must create the irc_settings module and its handler function:
-
-*** irc_settings
-In a new file called ~irc_settings.erl~ add the following code:
-
-#+BEGIN_SRC erlang
-  -module(irc_settings).
-  -behaviour(irc_config).
-
-  -export([get/1]).
-
-
-  get(Id) ->
-      case Id of
-          example_id -> example_id()
-      end.
-
-
-  example_id() ->
-      #{address       => "irc.example.org",
-        port          => 6697,
-        tls           => true,
-        nickname      => "my_irc_client",
-        user          => "my_irc_client",
-        realname      => "My IRC client",
-        channels      => #{"#channel" => <<>>},
-        handler       => fun irc_dispatcher:message/2}.
-#+END_SRC
-
-We will use the client Id ~example_id~, but this can be anything you
-want as long as it is a unique Erlang atom.
-
-You can change the settings to point to a real IRC server if you want
-to run this example.
+To implement the bot we must first create its handler function:
 
 *** Handler
-As you can see in the previous section, we set our handler function to
-be ~irc_dispatcher:message/2~. In a file called ~irc_dispatcher.erl~ add
-the following code:
+In a file called ~irc_dispatcher.erl~ add the following code:
 
 #+BEGIN_SRC erlang
   -module(irc_dispatcher).
@@ -67,13 +32,23 @@ We extract the IRC command from the Message and check to see if it a PRIVMSG (a 
 message sent to an IRC channel or privately with the bot).  If it is indeed a PRIVMSG we
 send the same message back, otherwise we ignore the message.
 
+Later we will configure ~message/2~ to be our handler function.
+
 ** Putting it all together
 
-You can now compile the files above and run them together with irc application.
+You can now compile the file above and run it together with the irc application.
 
 Once you are in the Erlang emulator with the irc application started
-and the two modules above loaded you can start the IRC client with:
+and the module above loaded you can configure and start the IRC client with:
 
 #+BEGIN_SRC erlang
+  irc_config:set(example_id, #{address       => "irc.example.org",
+                               port          => 6697,
+                               tls           => true,
+                               nickname      => "my_irc_client",
+                               user          => "my_irc_client",
+                               realname      => "My IRC client",
+                               channels      => #{"#channel" => <<>>},
+                               handler       => fun irc_dispatcher:message/2}.
   irc:connect(example_id).
 #+END_SRC

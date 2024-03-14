@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright (C) 2023 hyperimpose.org
+%% Copyright (C) 2023-2024 hyperimpose.org
 %%
 %% This file is part of irc.
 %%
@@ -17,13 +17,10 @@
 %%--------------------------------------------------------------------
 
 %%%-------------------------------------------------------------------
-%%% Module to read config options from a settings module.
+%%% Module for holding and changing the config options.
 %%%
 %%% To connect to an IRC server using this OTP application you must
-%%% implement a settings module.
-%%% The default name of this module is irc_settings. This name can be
-%%% changed through the irc_config_module application env.
-%%% This module must use -behaviour(irc_config) as defined below.
+%%% enter the proper configuration using this module.
 %%%
 %%% You must make sure that the config returned is in the correct
 %%% format according to the types provided.
@@ -37,10 +34,11 @@
 
 -module(irc_config).
 
--callback get(Id :: atom()) -> {ok, config()}.
+%% gen_server callbacks
+-export([init/1, handle_call/3, handle_cast/2]).
 
-
--export([get/1, new/0,
+%% API
+-export([start_link/0, get/1, set/2, new/0,
          %% Connection
          get_address/1, set_address/2,
          get_port/1, set_port/2,
@@ -93,16 +91,29 @@
                     handler => handler()}.
 
 
+-record(state, {confs=#{}}).
+
+
 %%%===================================================================
 %%% API
 %%%===================================================================
 
+-spec start_link() ->
+          {ok, Pid :: pid()} |
+          {error, Error :: {already_started, pid()}} |
+          {error, Error :: term()} |
+          ignore.
+
+start_link() ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
 %%% Configuration ====================================================
 
--spec get(Id :: atom()) -> {ok, config()}.
-get(Id) ->
-    {ok, Module} = application:get_env(irc_config_module),
-    Module:get(Id).
+-spec get(Id :: atom()) -> {ok, config()} | not_found.
+get(Id) -> gen_server:call(?MODULE, {get, Id}).
+
+-spec set(Id :: atom(), Config :: config()) -> ok.
+set(Id, Config) -> gen_server:call(?MODULE, {set, Id, Config}).
 
 -spec new() -> #{}.
 new() -> #{}.
@@ -238,3 +249,34 @@ get_handler(Config) -> maps:get(handler, Config).
 
 -spec set_handler(config(), handler()) -> config().
 set_handler(Config, Handler) -> Config#{handler => Handler}.
+
+
+%%%===================================================================
+%%% gen_server callbacks
+%%%===================================================================
+
+-spec init(Id :: atom()) -> {ok, State :: #state{}, Timeout :: timeout()}.
+
+init(Id) ->
+    process_flag(trap_exit, true),
+    {ok, #state{}}.
+
+%%--------------------------------------------------------------------
+
+
+handle_call({get, Id}, _From, #state{confs=Confs} = State) ->
+    case Confs of
+        #{Id := Conf} ->
+            {reply, {ok, Conf}, State};
+        _Else ->
+            {reply, not_found, State}
+    end;
+handle_call({set, Id, Config}, _From, #state{confs=Confs} = State) ->
+    {reply, ok, State#state{confs=Confs#{Id => Config}}};
+handle_call(_Request, _From, State) ->
+    {reply, ok, State}.
+
+%%--------------------------------------------------------------------
+
+handle_cast(_Request, State) ->
+    {noreply, State}.

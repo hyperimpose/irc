@@ -49,23 +49,23 @@ connection  we must  assign a  unique Id  to each  one of  the clients
 started.
 
 This Id must be an Erlang atom  and /must never be used anywhere else/
-in the rest of your project to avoid name classes and other issues.
+in the rest of your project to avoid name classes and other issues (in
+ETS or other Erlang facilities).
 
-**** irc_settings
-IRC clients  retrieve their configuration parameters  from an external
-module called irc_settings.
+**** irc_config
+IRC  clients   retrieve  their   configuration  parameters   from  the
+irc_config  gen  server.   You  must   use  this  module  to  set  the
+configuration before you can connect to an IRC server.
 
-This module is to be provided by the user of this OTP application.  It
-must implement the irc_config behaviour and expose the function ~get/1~,
-which returns the configuration for each client.
-
-The name of the of the configuration module can be changed by changing
-the application  `irc_config_module' env setting.
+The   irc_config   module   contains  functions   for   creating   the
+configuration object from scratch.
 
 ***** Options
 
-get/1 takes as input the Id and returns the configurations options
-according to the type config() as specified in the [[../src/irc_client/irc_config.erl][irc_config.erl]] module.
+set/2 can be  used to set the configuration. Make  sure it conforms to
+the config() type as specified in the [[../src/irc_client/irc_config.erl][irc_config.erl]] module.
+
+get/1 takes as input the Id and returns the configuration.
 
 The [[../src/irc_client/irc_config.erl][irc_config.erl]] module also contains setter functions that should be
 used if you want to build the config map programmatically.
@@ -93,7 +93,7 @@ A brief summury of the options is provided on the table below:
 In order to receive and react to IRC events you must implement a handler function.
 The IRC client will pass any incoming messages to that function.
 
-This function is specified by the `handler' option in the [[irc_settings]] module.
+This function is specified by the `handler' option in the irc_config module.
 
 Each message is passed in a synchronous manner, by calling the function.  This blocks
 the IRC client until the  function returns.  It is, thus, important that the  handler

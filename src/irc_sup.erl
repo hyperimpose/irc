@@ -98,4 +98,8 @@ init(_Args) ->
                  intensity => 1,
                  period => 5},
 
-    {ok, {SupFlags, []}}.
+    IrcConfig = #{id       => irc_config,
+                  start    => {irc_config, start_link, []},
+                  restart  => permanent},
+
+    {ok, {SupFlags, [IrcConfig]}}.
