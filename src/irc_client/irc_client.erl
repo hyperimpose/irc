@@ -88,7 +88,7 @@ init(Id) ->
     ets:new(Id, [set, protected, named_table, {keypos, 1}]),
 
     %% Configuration
-    Conf = irc_config:get(Id),
+    {ok, Conf} = irc_config:get(Id),
 
     State = #state{id = Id, conf = Conf},
     {ok, connect(State), ?TIMEOUT}.
