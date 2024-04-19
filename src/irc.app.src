@@ -18,7 +18,7 @@
 
 {application, irc,
  [{description, "IRC client library"},
-  {vsn, "=version="},
+  {vsn, semver},
   {modules, [irc, irc_app, irc_sup,
              %% irc_client
              irc_channel, irc_client, irc_client_sup, irc_config, irc_isupport,
@@ -29,6 +29,6 @@
              %% lib
              irc_zipper]},
   {registered, [irc_sup]},
-  {applications, [kernel, stdlib]},
+  {applications, [kernel, stdlib, ssl]},
   {mod, {irc_app, []}}
  ]}.
