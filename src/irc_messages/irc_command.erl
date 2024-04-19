@@ -323,7 +323,7 @@ list(Channels) -> [<<"LIST ">>, lists:join(<<",">>, Channels), <<"\r\n">>].
 -spec list(Channels :: [iodata()], Server :: iodata()) -> iolist().
 
 list(Channels, Server) ->
-    [<<"LIST ">>, lists:join(<<" ">>, Channels), <<" ">>, Server, <<"\r\n">>].
+    [<<"LIST ">>, lists:join(<<",">>, Channels), <<" ">>, Server, <<"\r\n">>].
 
 %%--------------------------------------------------------------------
 %% LUSERS command.

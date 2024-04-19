@@ -89,7 +89,7 @@ join_test_() ->
                                                        ["C1"] => "K1",
                                                        <<"C4">> => <<>>,
                                                        "C2" => <<"K2">>})),
-                   <<"JOIN C1,C2,C3 K1,K2\r\n">>),
+                   <<"JOIN C1,C2,C3,C4 K1,K2\r\n">>),
      ?_assertEqual(iolist_to_binary(irc_command:join(#{"C1" => ""})),
                    <<"JOIN C1\r\n">>)].
 
@@ -115,7 +115,7 @@ links_test_() ->
       ?_assertEqual(iolist_to_binary(irc_command:links("Mask")),
                     <<"LINKS Mask\r\n">>),
       ?_assertEqual(iolist_to_binary(irc_command:links("Remote", "Mask")),
-                    <<"LINKS Remote, Mask\r\n">>)].
+                    <<"LINKS Remote Mask\r\n">>)].
 
 %%% LIST
 
@@ -272,13 +272,13 @@ trace_test_() ->
 
 %%% USER
 
-user_test_() ->
+user_test() ->
     ?assertEqual(iolist_to_binary(irc_command:user("user", "0", "*", "real")),
                  <<"USER user 0 * :real\r\n">>).
 
 %%% USERHOST
 
-userhost_test_() ->
+userhost_test() ->
     ?assertEqual(iolist_to_binary(irc_command:userhost(["n1", "n2"])),
                  <<"USERHOST n1 n2\r\n">>).
 
