@@ -64,7 +64,9 @@
 
 -type address() :: inet:socket_address() | inet:hostname().
 -type irc_send_mode() :: fifo | {shared, map()}.
--type nickserv() :: #{prefix := binary(), recover := binary()}.
+-type nickserv() :: #{prefix := binary(),
+                      recover := binary(),
+                      recover_nick := binary()}.
 -type channels() :: #{Channel :: binary() => Password :: binary()}.
 
 -type handler() :: fun((Id :: atom(), Msg :: irc_parser:message()) -> any()).
@@ -80,7 +82,7 @@
                     nickname => string(),
                     user     => string(),
                     realname => string(),
-                    nickserv => nickserv(),
+                    nickserv => nickserv() | undefined,
                     channels => channels(),
                     %% IRCv3
                     sasl     => [ircv3:sasl()],
@@ -194,10 +196,10 @@ set_realname(Config, Realname) -> Config#{realname => Realname}.
 
 %%% nickserv =========================================================
 
--spec get_nickserv(config()) -> nickserv().
+-spec get_nickserv(config()) -> nickserv() | undefined.
 get_nickserv(Config) -> maps:get(nickserv, Config, #{}).
 
--spec set_nickserv(config(), nickserv()) -> config().
+-spec set_nickserv(config(), nickserv() | undefined) -> config().
 set_nickserv(Config, Nickserv) -> Config#{nickserv => Nickserv}.
 
 %%% channels =========================================================
@@ -255,9 +257,9 @@ set_handler(Config, Handler) -> Config#{handler => Handler}.
 %%% gen_server callbacks
 %%%===================================================================
 
--spec init(Id :: atom()) -> {ok, State :: #state{}, Timeout :: timeout()}.
+-spec init(Id :: atom()) -> {ok, State :: #state{}}.
 
-init(Id) ->
+init(_Id) ->
     process_flag(trap_exit, true),
     {ok, #state{}}.
 

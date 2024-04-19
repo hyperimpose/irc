@@ -447,7 +447,7 @@ rpl_creationtime(Message, #state{id = Id} = State) ->
 
 rpl_notopic(Message, #state{id = Id} = State) ->
     {ok, Channel, _Text} = irc_parser:rpl_notopic(Message),
-    irc_channel:unset_notopic(Id, Channel),
+    irc_channel:unset_topic(Id, Channel),
     State.
 
 
@@ -547,7 +547,7 @@ rpl_endofmotd(Message, #state{id = Id, conf = Conf} = State) ->
     %% If the  nickname we  ended up  with isn't the  same as  the one
     %% configured, try and recover it using nickserv.
     %% The response from NickServ is NOT checked.
-    case Nick == irc_config:get_nickname(Conf) of
+    case irc_parser:is_equal(Id, Nick, irc_config:get_nickname(Conf)) of
         false -> try_nickserv_recover(Id, Conf);
         true  -> []  % do nothing
     end,

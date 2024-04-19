@@ -38,11 +38,11 @@
 
                 %% Networking
                 socket,  % The socket used to connect to the IRC server.
-                module :: gen_tcp | ssl,  % Socket handler module.
+                module :: gen_tcp | ssl | undefined,  % Socket handler module.
                 wait = 0,  % How long to wait between reconnection attempts.
 
                 %% Handler - A fun callback to which all IRC messages are sent.
-                handler :: irc_config:handler(),
+                handler :: irc_config:handler() | undefined,
 
                 %% Runtime
-                cap :: #cap_state{}}).
+                cap :: #cap_state{} | undefined}).

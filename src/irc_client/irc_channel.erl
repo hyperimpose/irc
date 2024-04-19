@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright (C) 2023 hyperimpose.org
+%% Copyright (C) 2023-2024 hyperimpose.org
 %%
 %% This file is part of irc.
 %%
@@ -54,16 +54,16 @@
 %%% State API
 %%%===================================================================
 
--record(user, {nickname    :: binary(),  % The name casefolded.
-               name        :: iodata(),  % The nickname as given by the server.
-               prefix = [] :: [char()]}).  % The prefixes set for the user.
+-record(user, {nickname    :: binary(),  % The name casefolded
+               name        :: iodata(),  % The nickname as given by the server
+               prefix = [] :: [char()]}).  % The prefixes set for the user
 
--record(channel, {channel      :: binary(),  % The name casefolded.
-                  name         :: iodata(),  % As given. Includes the type.
-                  topic        :: binary(),  % The topic itself.
-                  topic_nick   :: binary(),  % The nickname that set it.
-                  topic_when   :: integer(),  % UNIX timestamp.
-                  creationtime :: integer(),  % UNIX timestamp.
+-record(channel, {channel      :: binary(),  % The name casefolded
+                  name         :: iodata(),  % As given. Includes the type
+                  topic        :: binary() | undefined,   % The topic itself
+                  topic_nick   :: binary() | undefined,   % The nick that set it
+                  topic_when   :: integer() | undefined,  % UNIX timestamp
+                  creationtime :: integer() | undefined,  % UNIX timestamp
                   modes = []   :: [binary()],
                   users = #{}  :: #{Nick :: binary() => #user{}},
                   %% State
@@ -114,7 +114,7 @@ add(Id, Names) ->
                   Names).
 
 
--spec delete(Id :: term(), Names :: [iodata()]) -> ok | {error, not_found}.
+-spec delete(Id :: term(), Names :: [iodata()]) -> [true].
 
 delete(Id, Names) ->
     lists:map(fun (Name) ->
@@ -237,7 +237,7 @@ delete_users(Id, Name) ->
 
 
 delete_all_users(Id, Nick) ->
-    lists:foreach(fun (R) -> delete_user(Id, R#channel.channel, Nick) end,
+    lists:foreach(fun (R) -> delete_user(Id, [R#channel.channel], Nick) end,
                   list(Id)).
 
 

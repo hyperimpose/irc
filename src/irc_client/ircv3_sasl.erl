@@ -66,14 +66,12 @@ init1(Id) ->
 %% @returns `true' if SASL auth was initiated, else `false'.
 %%--------------------------------------------------------------------
 
--spec init(term(), Args :: string(), Sasl :: {sasl, ircv3:sasl()} | false) ->
+-spec init(term(), Args :: string(), Sasl :: ircv3:sasl() | false) ->
           boolean().
 
 init(Id, Args, Sasl) ->
     case irc_config:next_sasl(irc_state:get_config(Id), Sasl) of
         {ok, S}   -> init1(S, Id, Args);
-        undefined -> false;  % No auth config
-        false     -> false;  % Proceed without auth
         empty     ->
             % All the auth methods failed:
             % stop the client process from connecting
@@ -88,9 +86,7 @@ init4({plain, _User, _Pass} = Sasl, Id, Args) ->
     case string:find(Args, "PLAIN") of
         nomatch -> init(Id, Args, Sasl);  %% Try next auth method.
         _       -> init5(Sasl, Id)
-    end;
-init4(_Sasl, _Id, _Args) ->
-    false.
+    end.
 
 init5({plain, _User, _Pass} = Sasl, Id) ->
     ?LOG_INFO("[IRC:~p] Trying SASL PLAIN auth", [Id]),
@@ -151,10 +147,10 @@ rpl_saslsuccess(Id, _Message) ->
 %%% 904 - ERR_SASLFAIL ===============================================
 
 err_saslfail(Id, _Message) ->
-    {_, Sasl} = irc_state:get_sasl(Id),
+    Sasl = irc_state:get_auth(Id),
     ?LOG_ERROR("[IRC:~p] {904} SASL Failed: ~p", [Id, Sasl]),
     case init(Id) of  % Try the next auth method
-        false -> irc_state:set_sasl(Id, undefined);
+        false -> irc_state:set_auth(Id, false);
         _Else -> []
     end.
 
@@ -165,7 +161,7 @@ err_sasltoolong(Id, Message) ->
     {ok, _N, T} = irc_parser:err_sasltoolong(Message),
     ?LOG_ERROR("[IRC:~p] {905} ~p - Please, report this error.", [Id, T]),
     case init(Id) of  % Try the next auth method
-        false -> irc_state:set_sasl(Id, undefined);
+        false -> irc_state:set_auth(Id, false);
         _Else -> []
     end.
 
@@ -190,6 +186,6 @@ rpl_saslmechs(Id, Message) ->
     {ok, _N, M, _T} = irc_parser:rpl_saslmechs(Message),
     ?LOG_NOTICE("[IRC:~p] {908} Available SASL mechanisms: ~p", [Id, M]),
     case init(Id) of  % Try the next auth method
-        false -> irc_state:set_sasl(Id, undefined);
+        false -> irc_state:set_auth(Id, false);
         _Else -> []
     end.

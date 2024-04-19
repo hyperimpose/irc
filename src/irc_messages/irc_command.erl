@@ -622,7 +622,7 @@ restart() -> <<"RESTART\r\n">>.
 %% Parameters: <server> <comment>
 %%--------------------------------------------------------------------
 
--spec squit(Server :: iodata(), Comment :: iodata()) -> binary().
+-spec squit(Server :: iodata(), Comment :: iodata()) -> iolist().
 
 squit(Server, Comment) -> [<<"SQUIT ">>, Server, <<" :">>, Comment, <<"\r\n">>].
 

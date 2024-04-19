@@ -208,7 +208,7 @@ unset_channellen(Id) -> ?SET(Id, channellen, 200).
 get_chantypes(Id) -> ?GET(Id, chantypes, <<>>).
 
 
--spec is_channel(Id :: atom(), Channel :: iolist()) -> boolean().
+-spec is_channel(Id :: atom(), Channel :: iodata()) -> boolean().
 
 is_channel(Id, Channel) ->
     case iolist_to_binary(Channel) of
@@ -233,7 +233,7 @@ unset_chantypes(Id) -> ?SET(Id, chantypes, <<>>).
 get_elist(Id) -> ?GET(Id, elist, undefined).
 
 
--spec has_elist(Id :: atom(), Mode :: c | m | n | t | u | string()) ->
+-spec has_elist(Id :: atom(), Mode :: c | m | n | t | u | binary()) ->
           boolean().
 
 has_elist(Id, c)    -> has_elist(Id, <<"C">>);

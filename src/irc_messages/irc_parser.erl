@@ -1058,7 +1058,7 @@ rpl_topic(#message{params = [_Nick, Channel, Topic]}) ->
 %% Parameters: <client> <channel> <nick> <setat>
 %%--------------------------------------------------------------------
 
--spec rpl_topicwhotime(message()) -> {ok, binary(), binary()}.
+-spec rpl_topicwhotime(message()) -> {ok, binary(), binary(), binary()}.
 
 rpl_topicwhotime(#message{params = [_Client, Channel, Nick, Timestamp]}) ->
     {ok, Channel, Nick, Timestamp}.

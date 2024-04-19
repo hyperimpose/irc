@@ -77,7 +77,7 @@
                  maxsize    :: integer(),
                  %% Runtime
                  now        :: queue:queue(message()),
-                 targets    :: irc_zipper:list_z(#shared_target{}),
+                 targets    :: irc_zipper:zipper_list(#shared_target{}),
                  dispatch   :: boolean(),
                  cmd_left   :: integer(),
                  reset_time :: integer()}).
@@ -85,9 +85,9 @@
 
 %% State
 -record(state, {id     :: atom(),
-                socket :: gen_tcp:socket(),
-                module :: module(),
-                mode   :: mode()}).
+                socket :: gen_tcp:socket() | undefined,
+                module :: module() | undefined,
+                mode   :: mode() | undefined}).
 
 
 %% Types

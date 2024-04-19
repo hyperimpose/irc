@@ -163,7 +163,6 @@ connect(#state{id = Id, conf = Conf, wait = Wait} = State) ->
 connect2(State, Conf, Socket) ->
     {S, M} = case irc_config:get_tls(Conf) of
                  true ->
-                     ssl:start(),
                      Opt = [{verify, verify_none}],
                      {ok, TlsSocket} = ssl:connect(Socket, Opt, ?SOCKET_TIMEOUT),
                      {TlsSocket, ssl};
@@ -213,11 +212,11 @@ wait_reset(S) -> S#state{wait = 0}.
 message({Mode, Socket, Data}, #state{id = Id, handler = Handler} = State) ->
     {ok, Message} = irc_parser:message(Data),
     S1 = irc_runtime:message(Message, State),
-    Handler(Id, Message),  % Custom handler
+    Handler(Id, Message),  % User provided handler
 
     case Mode of
         ssl -> ok = ssl:setopts(Socket, [{active, once}]);
-        tcp -> ok = inets:setopts(Socket, [{active, once}])
+        tcp -> ok = inet:setopts(Socket, [{active, once}])
     end,
 
     {noreply, S1, ?TIMEOUT}.
