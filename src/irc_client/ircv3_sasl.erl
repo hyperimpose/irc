@@ -76,7 +76,7 @@ init(Id, Args, Sasl) ->
             % All the auth methods failed:
             % stop the client process from connecting
             % show error message to the user using logs
-            todo
+            false  % todo
     end.
 
 init1(Sasl, Id, <<>>) -> init5(Sasl, Id);
