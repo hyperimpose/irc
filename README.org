@@ -14,6 +14,14 @@ Some of the features offered are:
 - Easy access to the connection state
 - Multiple connections
 
+** Install
+You can include this library in your projects as a dependency in rebar.config:
+
+#+BEGIN_SRC erlang
+  {deps, [%% ... Other dependencies
+         {irc, {git, "https://github.com/hyperimpose/irc.git", {branch, "master"}}}]}.
+#+END_SRC
+
 ** Documentation
 
 - [[./doc/guide.org][User's guide]] :: Building, basic concepts

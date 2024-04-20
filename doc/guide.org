@@ -20,22 +20,6 @@ To use this IRC client framework you must be familiar with:
 - Erlang/OTP :: https://www.erlang.org/doc/getting_started/users_guide
 - The IRC client protocol :: https://www.rfc-editor.org/rfc/rfc1459.html / https://modern.ircdocs.horse/
 
-* Building
-**** Dependencies
-To build this application you will need the following: 
-- Erlang/OTP 26 or later
-- GNU make (only needed for building the application)
-
-**** Make
-On the [[../][root directory]] of the project run the following command:
-#+BEGIN_SRC bash
-make
-#+END_SRC
-
-This will create the ~/ebin~ directory, which contains the compiled Erlang code.
-
-You can use ~make clean~ to delete the build artifacts.
-
 * Components
 In this section we describe the components and terminology involved in
 using this IRC client framework in your own programs.
