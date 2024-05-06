@@ -130,19 +130,30 @@ notice_max_size(Id, Msgtarget) ->
 %% Command: NOTICE
 %% Parameters: <msgtarget> <text to be sent>
 
-notice(Id, Recv, Text) -> notice(Id, Recv, Text, {truncate, ?DEFAULT_TRUNC}).
+notice(Id, Recv, Text) -> notice(Id, Recv, Text, #{mode => truncate}).
 
 
-notice(Id, Recv, Text, {truncate, Ellipsis}) ->
-    MaxSize = notice_max_size(Id, Recv),
-    TruncText = irc_text:truncate(clean_up(Text), MaxSize, Ellipsis),
-    {message, #{command  => privmsg,
+notice(Id, Recv, Text, #{mode := truncate} = Opts) ->
+    Ellipsis = maps:get(ellipsis, Opts, ?DEFAULT_TRUNC),
+    Max = notice_max_size(Id, Recv),
+    Out = irc_text:truncate(clean_up(Text), Max, Ellipsis),
+    {message, #{command  => notice,
                 receiver => Recv,
-                message  => irc_command:notice(Recv, TruncText)}};
+                message  => irc_command:notice(Recv, Out)}};
+
+notice(Id, Recv, Texts, #{mode := fractional} = Opts) ->
+    Ellipsis = maps:get(ellipsis, Opts, ?DEFAULT_TRUNC),
+    Max = notice_max_size(Id, Recv),
+    Ts = [{F, clean_up(T)} || {F, T} <- Texts],
+    Out = irc_text:fractional_truncate(Ts, Max, Ellipsis),
+    {message, #{command  => notice,
+                receiver => Recv,
+                message  => irc_command:notice(Recv, Out)}};
+
 notice(Id, Recv, Text, divide) ->
     MaxSize = notice_max_size(Id, Recv),
     TextList = irc_text:divide(clean_up(Text), MaxSize),
-    F = fun (X) -> {message, #{command => privmsg,
+    F = fun (X) -> {message, #{command => notice,
                                receiver => Recv,
                                message => irc_command:notice(Recv, X)}}
         end,
@@ -178,18 +189,29 @@ privmsg_max_size(Id, Msgtarget) ->
 %% Command: PRIVMSG
 %% Parameters: <msgtarget> <text to be sent>
 
-privmsg(Id, Recv, Text) -> privmsg(Id, Recv, Text, {truncate, ?DEFAULT_TRUNC}).
+privmsg(Id, Recv, Text) -> privmsg(Id, Recv, Text, #{mode => truncate}).
 
 
-privmsg(Id, Recv, Text, {truncate, Ellipsis}) ->
-    MaxSize = privmsg_max_size(Id, Recv),
-    TruncText = irc_text:truncate(clean_up(Text), MaxSize, Ellipsis),
+privmsg(Id, Recv, Text, #{mode := truncate} = Opts) ->
+    Ellipsis = maps:get(ellipsis, Opts, ?DEFAULT_TRUNC),
+    Max = privmsg_max_size(Id, Recv),
+    Out = irc_text:truncate(clean_up(Text), Max, Ellipsis),
     {message, #{command  => privmsg,
                 receiver => Recv,
-                message  => irc_command:privmsg(Recv, TruncText)}};
-privmsg(Id, Recv, Text, divide) ->
-    MaxSize = privmsg_max_size(Id, Recv),
-    TextList = irc_text:divide(clean_up(Text), MaxSize),
+                message  => irc_command:privmsg(Recv, Out)}};
+
+privmsg(Id, Recv, Texts, #{mode := fractional} = Opts) ->
+    Ellipsis = maps:get(ellipsis, Opts, ?DEFAULT_TRUNC),
+    Max = privmsg_max_size(Id, Recv),
+    Ts = [{F, clean_up(T)} || {F, T} <- Texts],
+    Out = irc_text:fractional_truncate(Ts, Max, Ellipsis),
+    {message, #{command  => privmsg,
+                receiver => Recv,
+                message  => irc_command:privmsg(Recv, Out)}};
+
+privmsg(Id, Recv, Text, #{mode := divide}) ->
+    Max = privmsg_max_size(Id, Recv),
+    TextList = irc_text:divide(clean_up(Text), Max),
     F = fun (X) -> {message, #{command => privmsg,
                                receiver => Recv,
                                message => irc_command:privmsg(Recv, X)}}
@@ -198,8 +220,8 @@ privmsg(Id, Recv, Text, divide) ->
 
 
 ctcp_action(Id, Target, Text) ->
-    MaxSize = privmsg_max_size(Id, Target) - 9,
-    TruncText = irc_text:truncate(clean_up(Text), MaxSize, ?DEFAULT_TRUNC),
+    Max = privmsg_max_size(Id, Target) - 9,
+    Out = irc_text:truncate(clean_up(Text), Max, ?DEFAULT_TRUNC),
     {message, #{command  => privmsg,
                 receiver => Target,
-                message  => irc_command:ctcp_action(Target, TruncText)}}.
+                message  => irc_command:ctcp_action(Target, Out)}}.
