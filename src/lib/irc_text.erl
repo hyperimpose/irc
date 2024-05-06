@@ -25,7 +25,7 @@ truncate(Text, Limit) -> truncate(Text, Limit, <<>>).
 
 truncate(Text, Limit, Ellipsis) ->
     E = unicode:characters_to_binary([Ellipsis]),
-    truncate(Text, Limit + byte_size(E), E, 0, []).
+    truncate(Text, Limit - byte_size(E), E, 0, []).
 
 truncate(Text, Limit, Ellipsis, Size, Acc) ->
     case string:next_grapheme(Text) of
