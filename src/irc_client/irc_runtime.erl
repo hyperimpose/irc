@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright (C) 2023 hyperimpose.org
+%% Copyright (C) 2023, 2025 hyperimpose.org
 %%
 %% This file is part of irc.
 %%
@@ -62,6 +62,7 @@ message(Message, State) ->
         <<"352">> -> rpl_whoreply(Message, State);
         <<"376">> -> rpl_endofmotd(Message, State);
         <<"396">> -> rpl_visiblehost(Message, State);
+        <<"412">> -> err_notexttosend(Message, State);
         <<"433">> -> err_nicknameinuse(Message, State);
         %% SASL
         <<"AUTHENTICATE">> -> sasl(<<"AUTHENTICATE">>, Message, State);
@@ -577,6 +578,13 @@ try_nickserv_recover(Id, Conf) ->
 rpl_visiblehost(Message, #state{id = Id} = State) ->
     {ok, _N, Host, _T} = irc_parser:rpl_visiblehost(Message),
     irc_state:set_host(Id, Host),
+    State.
+
+
+%%% 412 - ERR_NOTEXTTOSEND ===========================================
+
+err_notexttosend(_Message, #state{id = Id} = State) ->
+    ?LOG_ERROR("[IRC:~p] {412} No text to send", [Id]),
     State.
 
 
