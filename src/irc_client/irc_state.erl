@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright (C) 2023 hyperimpose.org
+%% Copyright 2023, 2026 hyperimpose.org
 %%
 %% This file is part of irc.
 %%
@@ -29,6 +29,7 @@
 %%%-------------------------------------------------------------------
 
 -module(irc_state).
+-moduledoc("Get the state of the IRC client connection.").
 
 
 -export([get_socket/1, set_socket/2]).
@@ -82,13 +83,22 @@
 
 %%% socket ===========================================================
 
+%%% TODO: Remove these two functions.
+%%%       They seem to not be set internally by the client and there
+%%%       should be no reason to expose the socket anyway.
+
+-doc false.
 get_socket(Id) ->
+    logger:warning("irc_state:get_socket/1 is deprecated and will be removed in the next versionn~n"),
     case ets:lookup(Id, socket) of
         [{socket, Socket}] -> Socket;
         []                 -> undefined
     end.
 
+
+-doc false.
 set_socket(Id, Socket) ->
+    logger:warning("irc_state:set_socket/1 is deprecated and will be removed in the next versionn~n"),
     ets:insert(Id, {socket, Socket}).
 
 
@@ -98,6 +108,14 @@ set_socket(Id, Socket) ->
 
 %%% config ===========================================================
 
+-doc("""
+Get the configuration currently in use by the client.
+
+The returned value is a snapshot captured at IRC registration time and
+is used for the lifetime of the connection.
+""").
+-spec get_config(Id :: atom()) -> irc_config:config() | undefined.
+
 get_config(Id) ->
     case ets:lookup(Id, config) of
         [{config, Config}] -> Config;
@@ -105,11 +123,15 @@ get_config(Id) ->
     end.
 
 
+-doc false.
 set_config(Id, Config) ->
     ets:insert(Id, {config, Config}).
 
 
 %%% nickname =========================================================
+
+-doc("Get the current nickname.").
+-spec get_nickname(Id :: atom()) -> binary() | undefined.
 
 get_nickname(Id) ->
     case ets:lookup(Id, nickname) of
@@ -118,11 +140,15 @@ get_nickname(Id) ->
     end.
 
 
+-doc false.
 set_nickname(Id, Nickname) ->
     ets:insert(Id, {nickname, iolist_to_binary(Nickname)}).
 
 
 %%% user =============================================================
+
+-doc("Get the current username.").
+-spec get_user(Id :: atom()) -> binary() | undefined.
 
 get_user(Id) ->
     case ets:lookup(Id, user) of
@@ -131,11 +157,15 @@ get_user(Id) ->
     end.
 
 
+-doc false.
 set_user(Id, User) ->
     ets:insert(Id, {user, User}).
 
 
 %%% host =============================================================
+
+-doc("Get the current hostname.").
+-spec get_host(Id :: atom()) -> binary() | undefined.
 
 get_host(Id) ->
     case ets:lookup(Id, host) of
@@ -144,11 +174,15 @@ get_host(Id) ->
     end.
 
 
+-doc false.
 set_host(Id, Host) ->
     ets:insert(Id, {host, Host}).
 
 
 %%% auth =============================================================
+
+-doc("Get the authentication method used during IRC registration.").
+-spec get_auth(Id :: atom()) -> {sasl, ircv3:sasl()} | false.
 
 get_auth(Id) ->
     case ets:lookup(Id, auth) of
@@ -157,11 +191,15 @@ get_auth(Id) ->
     end.
 
 
+-doc false.
 set_auth(Id, Auth) ->
     ets:insert(Id, {auth, Auth}).
 
 
 %%% modes ============================================================
+
+-doc("Get the current user modes for this client.").
+-spec get_modes(Id :: atom()) -> list(char()).
 
 get_modes(Id) ->
     case ets:lookup(Id, modes) of
@@ -170,6 +208,7 @@ get_modes(Id) ->
     end.
 
 
+-doc false.
 set_modes(Id, Modes) ->
     ets:insert(Id, {modes, Modes}).
 
@@ -180,6 +219,9 @@ set_modes(Id, Modes) ->
 
 %%% account ==========================================================
 
+-doc("Get the account associated with this client.").
+-spec get_account(Id :: atom()) -> binary() | undefined.
+
 get_account(Id) ->
     case ets:lookup(Id, account) of
         [{account, Account}] -> Account;
@@ -187,16 +229,19 @@ get_account(Id) ->
     end.
 
 
+-doc false.
 set_account(Id, Account) ->
     ets:insert(Id, {account, Account}).
 
 
+-doc false.
 unset_account(Id) ->
     ets:delete(Id, account).
 
 
 %%% cap_ls ===========================================================
 
+-doc("IRCv3 capabilities supported by the server.").
 -spec get_cap_ls(Id :: any()) -> cap_ls().
 
 get_cap_ls(Id) ->
@@ -206,6 +251,7 @@ get_cap_ls(Id) ->
     end.
 
 
+-doc false.
 -spec set_cap_ls(Id :: any(), Caps :: cap_ls()) -> true.
 
 set_cap_ls(Id, Caps) ->
@@ -214,6 +260,7 @@ set_cap_ls(Id, Caps) ->
 
 %%% cap_list =========================================================
 
+-doc("Enabled IRCv3 capabilities.").
 -spec get_cap_list(Id :: any()) -> [ircv3:cap()].
 
 get_cap_list(Id) ->
@@ -223,12 +270,14 @@ get_cap_list(Id) ->
     end.
 
 
+-doc false.
 -spec set_cap_list(Id :: any(), Caps :: [ircv3:cap()]) -> true.
 
 set_cap_list(Id, Caps) ->
     ets:insert(Id, {cap_list, Caps}).
 
 
+-doc("Check if a capability is enabled.").
 -spec has_cap_list(Id :: any(), Cap :: unicode:chardata()) -> boolean().
 
 has_cap_list(Id, Cap) ->
@@ -237,6 +286,7 @@ has_cap_list(Id, Cap) ->
 
 %%% cap_end ==========================================================
 
+-doc("Check if capability negotiation has ended.").
 -spec get_cap_end(Id :: any()) -> boolean().
 
 get_cap_end(Id) ->
@@ -246,6 +296,7 @@ get_cap_end(Id) ->
     end.
 
 
+-doc false.
 -spec set_cap_end(Id :: any(), Value :: boolean()) -> true.
 
 set_cap_end(Id, Value) ->
@@ -256,6 +307,7 @@ set_cap_end(Id, Value) ->
 %%% Group API (Functions that group data into a single call)
 %%%===================================================================
 
+-doc false.
 -spec group_prefix(Id :: term()) ->
           {Nick :: binary(), User :: binary(), Host :: binary()}.
 
@@ -295,6 +347,7 @@ group_prefix(Id) ->
 %% state and return the remaining length by the function.
 %%--------------------------------------------------------------------
 
+-doc false.
 -spec group_length_prefix(Id :: term()) ->
           {integer(), Nick :: binary(), User :: binary(), Host :: binary()}.
 

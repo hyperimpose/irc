@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright (C) 2023 hyperimpose.org
+%% Copyright 2023, 2026 hyperimpose.org
 %%
 %% This file is part of irc.
 %%
@@ -25,7 +25,7 @@
 %%%
 %%% After starting the gen_server you  must also provide the necessary
 %%% configuration parameters. These are  the socket, the socket module
-%%% and the mode in which the schedule must be set.
+%%% and the mode in which the scheduler must be set.
 %%%
 %%% The configuration  is done  by calling the  functions set_socket/3
 %%% and set_mode/2 after the gen_server has been started.
@@ -56,14 +56,16 @@
 %%%-------------------------------------------------------------------
 
 -module(irc_send).
-
 -behaviour(gen_server).
+
+-moduledoc("Send messages to the IRC server.").
+
 
 %% API
 -export([start_link/1, schedule/2, now/2, set_socket/3, set_mode/2, reset/1]).
 
 %% gen_server callbacks
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2]).
 
 
 %% Mode: shared
@@ -109,6 +111,7 @@
 %%% API
 %%%===================================================================
 
+-doc false.
 -spec start_link(Id :: atom()) ->
           {ok, Pid :: pid()} |
           {error, Error :: {already_started, pid()}} |
@@ -119,68 +122,57 @@ start_link(Id) ->
     gen_server:start_link(?NAME(Id), ?MODULE, Id, []).
 
 
-%%--------------------------------------------------------------------
-%% Schedule a message for sending to the IRC server.
-%%--------------------------------------------------------------------
-
+-doc("Schedule a message for sending to the IRC server.").
 -spec schedule(Id :: term(), message()) -> ok.
 
 schedule(Id, Message) ->
     gen_server:call(?NAME(Id), {schedule, Message}).
 
 
-%%--------------------------------------------------------------------
-%% Send a message before any other scheduled messages.
-%%
-%% Avoid using this function.  It is meant for internal use by the bot
-%% to send urgent protocol messages that should not be delayed.
-%%
-%% The actual mechanics of the function depend on the mode used.
-%%
-%% `fifo': The message is sent immediately to the server.  There is no
-%% difference between now/2 and schedule/2 in this mode.
-%%
-%% `shared': The message is added in a special queue that is processed
-%% before any of the other queues.
-%%--------------------------------------------------------------------
+-doc("""
+Send a message before any other scheduled messages.
 
+Avoid using this  function.  It is intended only for sending urgent
+protocol messages that should not be delayed.
+
+The actual mechanics of the function depend on the mode used.
+- `fifo`: The message is sent immediately to the server.  There is no
+difference between now/2 and schedule/2 in this mode.
+- `shared`: The message is added in a special queue that is processed
+before any of the other queues.
+""").
 -spec now(Id :: term(), message()) -> ok.
 
 now(Id, Message) ->
     gen_server:call(?NAME(Id), {now, Message}).
 
 
-%%--------------------------------------------------------------------
 %% Set the socket and the module (gen_tcp / ssl) to use for sending
 %% messages to the IRC server.
-%%--------------------------------------------------------------------
-
+-doc false.
 -spec set_socket(Id :: term(), gen_tcp:socket(), module()) -> ok.
 
 set_socket(Id, Socket, Module) ->
     gen_server:call(?NAME(Id), {set_socket, Socket, Module}).
 
 
-%%--------------------------------------------------------------------
 %% Set the message scheduling mode.
-%%--------------------------------------------------------------------
-
+-doc false.
 -spec set_mode(Id :: term(), Mode :: mode()) -> ok.
 
 set_mode(Id, Mode) ->
     gen_server:call(?NAME(Id), {set_mode, Mode}).
 
 
-%%--------------------------------------------------------------------
-%% Reset the mode record to clear the queues and reset the counters.
-%%
-%% This is useful when reconnecting, because we want the queues
-%% emptied so that the old messages will not interfer with the
-%% registration process.
-%%
-%% May also be useful for stopping unwanted output/flooding.
-%%--------------------------------------------------------------------
+-doc("""
+Reset the mode record to clear the queues and reset the counters.
 
+This is useful when reconnecting, because we want the queues
+emptied so that the old messages will not interfer with the
+registration process.
+
+May also be useful for stopping unwanted output/flooding.
+""").
 -spec reset(Id :: term()) -> ok.
 
 reset(Id) ->
@@ -191,6 +183,7 @@ reset(Id) ->
 %%% gen_server callbacks
 %%%===================================================================
 
+-doc false.
 -spec init(Id :: atom()) -> {ok, State :: term()} |
           {ok, State :: term(), Timeout :: timeout()} |
           {ok, State :: term(), hibernate} |
@@ -202,6 +195,8 @@ init(Id) ->
     {ok, #state{id = Id}}.
 
 %%--------------------------------------------------------------------
+
+-doc false.
 
 handle_call({schedule, Message}, _From, State) -> call_schedule(Message, State);
 handle_call({now, Message},      _From, State) -> call_now(Message, State);
@@ -219,22 +214,16 @@ handle_call(_Request, _From, State) ->
 
 %%--------------------------------------------------------------------
 
-handle_cast(_Request, State) ->
-    {noreply, State}.
+-doc false.
+
+handle_cast(_Request, State) -> {noreply, State}.
 
 %%--------------------------------------------------------------------
+
+-doc false.
 
 handle_info(msg_process, State) -> info_msg_process(State);
-handle_info(_Info, State) ->
-    {noreply, State}.
-
-%%--------------------------------------------------------------------
-
--spec terminate(Reason :: normal | shutdown | {shutdown, term()} | term(),
-                State :: term()) -> any().
-
-terminate(_Reason, _State) ->
-    ok.
+handle_info(_Info, State)       -> {noreply, State}.
 
 
 %%%===================================================================

@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright (C) 2023 hyperimpose.org
+%% Copyright 2023 hyperimpose.org
 %%
 %% This file is part of irc.
 %%
@@ -24,6 +24,7 @@
 %%%-------------------------------------------------------------------
 
 -module(ircv3_cap).
+-moduledoc false.
 
 -include("irc_client.hrl").
 

@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright (C) 2023 hyperimpose.org
+%% Copyright 2023 hyperimpose.org
 %%
 %% This file is part of irc.
 %%
@@ -21,7 +21,7 @@
 %%%-------------------------------------------------------------------
 
 -module(irc_zipper).
-
+-moduledoc false.
 
 -export([current/1, find/2, from_list/1, is_empty/1, list/0, map/2,
          next/1, next_c/1, next_cr/1,

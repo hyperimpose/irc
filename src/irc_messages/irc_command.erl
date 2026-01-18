@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright (C) 2023 hyperimpose.org
+%% Copyright 2023 hyperimpose.org
 %%
 %% This file is part of irc.
 %%
@@ -15,10 +15,6 @@
 %% You should have received a copy of the GNU Affero General Public License
 %% along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %%--------------------------------------------------------------------
-
-%%%-------------------------------------------------------------------
-%%% Construct IRC protocol messages
-%%%-------------------------------------------------------------------
 
 -module(irc_command).
 
@@ -44,28 +40,38 @@
          ctcp_clientinfo/2, ctcp_ping/2, ctcp_source/1, ctcp_source/2,
          ctcp_time/1, ctcp_time/2, ctcp_version/1, ctcp_version/2]).
 
-%%% This module implements the IRC commands described in RFC 1459, RFC
-%%% 2812 and  IRCv3.
-%%%
-%%% Commands from other sources may also be implemented here.
-%%%
-%%% No effort to secure/sanitize user input is made. The caller has to
-%%% make sure that the parameters passed do not inject any messages or
-%%% parameters.   The  obvious  sanitization   that  can  be  done  is
-%%% filtering out  any CRLF bytes,  but other (less  severe) injection
-%%% methods are possible.
-%%%
-%%% No message size limit is enforced.  Make sure you will not go over
-%%% the limit (usually 512 bytes).
-%%%
-%%% The functions  in this module will  construct the part of  the IRC
-%%% message that contains the command and its parameters. The user may
-%%% add a  `tags' or  a `prefix'  part to the  output of  the provided
-%%% commands as needed.
-%%%
-%%% Because the functions include the parameters part in their output,
-%%% which is the final part of an IRC message, the CRLF bytes are also
-%%% added.
+
+-moduledoc("""
+Construct IRC protocol messages
+
+This module implements the IRC commands described in RFC 1459, RFC
+2812 and  IRCv3.
+
+Commands from other sources may also be implemented here.
+
+> #### Warning {: .warning}
+>
+> No effort to secure/sanitize user input is made. The caller has to
+> make sure that the parameters passed do not inject any messages or
+> parameters.
+>
+> The obvious  sanitization  that can be  done is  filtering out any
+> CRLF bytes, but other (less severe) injection methods are possible.
+
+> #### Warning {: .warning}
+>
+> No message size limit is enforced.  Make sure you will not go over
+> the limit (usually 512 bytes).
+
+The functions  in this module will  construct the part of  the IRC
+message that contains the command and its parameters. The user may
+add a  `tags` or  a `prefix`  part to the  output of  the provided
+commands as needed.
+
+Because the functions include the parameters part in their output,
+which is the final part of an IRC message, the CRLF bytes are also
+added.
+""").
 
 
 %%%===================================================================

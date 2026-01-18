@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright (C) 2023 hyperimpose.org
+%% Copyright 2023 hyperimpose.org
 %%
 %% This file is part of irc.
 %%
@@ -49,6 +49,7 @@
 %% config setting and the capabilities supported by the IRC server.
 %%--------------------------------------------------------------------
 
+-doc false.
 get_cap_req(Id) ->
     CapWant = irc_config:get_cap_want(irc_state:get_config(Id)),
     Want_set = sets:from_list(CapWant),

@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright (C) 2023 hyperimpose.org
+%% Copyright 2023, 2026 hyperimpose.org
 %%
 %% This file is part of irc.
 %%
@@ -16,14 +16,14 @@
 %% along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %%--------------------------------------------------------------------
 
-%%%-------------------------------------------------------------------
-%%% High level IRC message construction.
-%%%
-%%% The functions in this module will perform all the necessary sanitization,
-%%% splitting, truncation etc. on the given messages.
-%%%-------------------------------------------------------------------
-
 -module(irc_make).
+
+-moduledoc("""
+High level IRC message construction.
+
+The functions in this module will perform all the necessary sanitization,
+splitting, truncation etc. on the given messages.
+""").
 
 
 -include_lib("kernel/include/logger.hrl").
@@ -42,21 +42,27 @@
 -define(DEFAULT_TRUNC, <<"...">>).
 
 
+%% Types
+-type many() :: {many, [message()]}.
+-type message() :: {message, #{command := atom(),
+                               receiver := term(),
+                               message := iodata()}}.
+
+
 %%%===================================================================
 %%% Helpers
 %%%===================================================================
 
-%%--------------------------------------------------------------------
-%% Remove unsafe bytes from the input text.
-%%
-%% It  removes any  CRLF bytes  to make  sure that  the text  does not
-%% contain a  second IRC command. This  can be used as  a mechanism to
-%% clean user input and prevent the insertion of unwanted commands.
-%%
-%% It also removes the NUL byte because it is not an allowed character
-%% according to the RFCs.
-%%--------------------------------------------------------------------
+-doc("""
+Remove unsafe bytes from the input text.
 
+It  removes any  CRLF bytes  to make  sure that  the text  does not
+contain a  second IRC command. This  can be used as  a mechanism to
+clean user input and prevent the insertion of unwanted commands.
+
+It also removes the NUL byte because it is not an allowed character
+according to the RFCs.
+""").
 -spec clean_up(iodata()) -> binary().
 
 clean_up(Text) ->
@@ -86,6 +92,7 @@ clean_up(<<>>,              Acc) -> Acc.
 %% at most 512 -  13 = 499 bytes for the caps.  We  use a Limit of 450
 %% bytes.
 
+-doc false.
 cap_req(Caps) ->
     cap_req1(Caps, ?CAP_REQ_LIMIT, [], []).
 
@@ -101,21 +108,11 @@ cap_req1([], _Lim, Caps, Cmds) ->
     [irc_command:cap_req(Caps) | Cmds].
 
 
-%%--------------------------------------------------------------------
-%% Get the maximum text length allowed in a NOTICE message.
-%%
-%% IRC messages are of a specific byte size. Usually 512 bytes.
-%%
-%% This function will  calculate how many bytes are left  for the text
-%% part of a NOTICE command.
-%%
-%% A received NOTICE has the following format:
-%% :<nickname>!<user>@<hostmask> NOTICE <msgtarget> :<text><\r\n>
-%%
-%% 15 bytes are used for punctuation, the command itself and CRLF. The
-%% rest is calculated dynamically.
-%%--------------------------------------------------------------------
+-doc("""
+Get the maximum text length allowed in a NOTICE message.
 
+See: `irc_make:privmsg_max_size/2`.
+""").
 -spec notice_max_size(Id :: term(), Msgtarget :: binary()) -> integer().
 
 notice_max_size(Id, Msgtarget) ->
@@ -127,11 +124,21 @@ notice_max_size(Id, Msgtarget) ->
     Len - N - U - H - M - 15.
 
 
-%% Command: NOTICE
-%% Parameters: <msgtarget> <text to be sent>
+-doc #{equiv => notice(Id, Recv, Text, #{mode => truncate})}.
+notice(Id, Recv, Text) ->
+    notice(Id, Recv, Text, #{mode => truncate}).
 
-notice(Id, Recv, Text) -> notice(Id, Recv, Text, #{mode => truncate}).
 
+-doc("""
+Make a NOTICE message.
+
+See: `irc_make:privmsg/4`.
+""").
+-spec notice(Id, Recv, Text, Opts) -> message() | many() when
+      Id   :: atom(),
+      Recv :: iodata(),
+      Text :: unicode:chardata(),
+      Opts :: #{mode := truncate | fractional | divide}.
 
 notice(Id, Recv, Text, #{mode := truncate} = Opts) ->
     Ellipsis = maps:get(ellipsis, Opts, ?DEFAULT_TRUNC),
@@ -160,21 +167,22 @@ notice(Id, Recv, Text, divide) ->
     {many, lists:map(F, TextList)}.
 
 
-%%--------------------------------------------------------------------
-%% Get the maximum text length allowed in a PRIVMSG message.
-%%
-%% IRC messages are of a specific byte size. Usually 512 bytes.
-%%
-%% This function will  calculate how many bytes are left  for the text
-%% part of a PRIVMSG command.
-%%
-%% A received PRIVMSG has the following format:
-%% :<nickname>!<user>@<hostmask> PRIVMSG <msgtarget> :<text><\r\n>
-%%
-%% 16 bytes are used for punctuation, the command itself and CRLF. The
-%% rest is calculated dynamically.
-%%--------------------------------------------------------------------
+-doc("""
+Get the maximum text length allowed in a PRIVMSG message.
 
+IRC messages are of a specific byte size. Usually 512 bytes.
+
+This function will  calculate how many bytes are left  for the text
+part of a PRIVMSG command.
+
+A received PRIVMSG has the following format:
+```text
+:<nickname>!<user>@<hostmask> PRIVMSG <msgtarget> :<text><\r\n>
+```
+
+16 bytes are used for punctuation, the command itself and CRLF. The
+rest is calculated dynamically.
+""").
 -spec privmsg_max_size(Id :: term(), Msgtarget :: binary()) -> integer().
 
 privmsg_max_size(Id, Msgtarget) ->
@@ -186,11 +194,45 @@ privmsg_max_size(Id, Msgtarget) ->
     Len - N - U - H - M - 16.
 
 
-%% Command: PRIVMSG
-%% Parameters: <msgtarget> <text to be sent>
+-doc #{equiv => privmsg(Id, Recv, Text, #{mode => truncate})}.
+privmsg(Id, Recv, Text) ->
+    privmsg(Id, Recv, Text, #{mode => truncate}).
 
-privmsg(Id, Recv, Text) -> privmsg(Id, Recv, Text, #{mode => truncate}).
 
+-doc("""
+Make a PRIVMSG message.
+
+This function constructs one or more PRIVMSG messages and performs all
+necessary sanitization and size handling.
+
+The behavior depends on the selected `mode`:
+
+- `truncate`:
+  The text is truncated to fit within the maximum allowed message size.
+  If truncation occurs, an ellipsis is appended.
+
+- `fractional`: The text is truncated using `irc_text:fractional_truncate/3`.
+
+  _Example:_
+  ```erlang
+  Texts = [{1, "Not truncated"},
+           {0.8, "80 percent truncated"},
+           {0.2, "20 percent truncated"}],
+  irc_make:privmsg(Id, Recv, Texts, #{mode => fractional}).
+  ```
+
+- `divide`:
+  The text is split into multiple messages, each within the maximum allowed
+  size. In this mode, the function returns a value of type `t:many/0`.
+
+When `#{mode => truncate}` or `#{mode => fractional}` the `ellipsis` option
+can be used to set an ellipsis other than the default.
+""").
+-spec privmsg(Id, Recv, Text, Opts) -> message() | many() when
+      Id   :: atom(),
+      Recv :: iodata(),
+      Text :: unicode:chardata(),
+      Opts :: #{mode := truncate | fractional | divide}.
 
 privmsg(Id, Recv, Text, #{mode := truncate} = Opts) ->
     Ellipsis = maps:get(ellipsis, Opts, ?DEFAULT_TRUNC),
@@ -218,6 +260,17 @@ privmsg(Id, Recv, Text, #{mode := divide}) ->
         end,
     {many, lists:map(F, TextList)}.
 
+
+-doc("""
+Create a CTCP ACTION message (known as /me).
+
+The input text is sanitized and truncated as necessary to fit within the maximum
+allowed message size. If truncation occurs, an ellipsis is appended.
+""").
+-spec ctcp_action(Id, Target, Text) -> message() when
+      Id :: atom(),
+      Target :: iodata(),
+      Text :: unicode:chardata().
 
 ctcp_action(Id, Target, Text) ->
     Max = privmsg_max_size(Id, Target) - 9,
