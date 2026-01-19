@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright (C) 2023, 2025 hyperimpose.org
+%% Copyright 2023, 2025 hyperimpose.org
 %%
 %% This file is part of irc.
 %%
@@ -26,6 +26,7 @@
 %%%-------------------------------------------------------------------
 
 -module(irc_runtime).
+-moduledoc false.
 
 -include_lib("kernel/include/logger.hrl").
 
@@ -164,13 +165,14 @@ mode_channel_add(Id, Channel, Type, Mode, Arg) ->
         a ->
             irc_channel:set_modes(Id, Channel, [{Mode, Arg} | Modes]);
         b ->
-            Modes1 = lists:keyreplace(Mode, 1, Modes, {Mode, Arg}),
+            Modes1 = [{Mode, Arg} | lists:keydelete(Mode, 1, Modes)],
             irc_channel:set_modes(Id, Channel, Modes1);
         c ->
-            Modes1 = lists:keyreplace(Mode, 1, Modes, {Mode, Arg}),
+            Modes1 = [{Mode, Arg} | lists:keydelete(Mode, 1, Modes)],
             irc_channel:set_modes(Id, Channel, Modes1);
         d ->
-            irc_channel:set_modes(Id, Channel, [{Mode, Arg} | Modes])
+            Modes1 = [{Mode, Arg} | lists:keydelete(Mode, 1, Modes)],
+            irc_channel:set_modes(Id, Channel, Modes1)
     end.
 
 mode_channel_delete(Id, Channel, Type, Mode, Arg) ->
