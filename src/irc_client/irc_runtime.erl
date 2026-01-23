@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright 2023, 2025 hyperimpose.org
+%% Copyright 2023, 2025, 2026 hyperimpose.org
 %%
 %% This file is part of irc.
 %%
@@ -41,6 +41,7 @@ message(Message, State) ->
     case irc_parser:get_command(Message) of
         %% Frequently used
         <<"JOIN">> -> join(Message, State);
+        <<"QUIT">> -> quit(Message, State);
         <<"PART">> -> part(Message, State);
         <<"PING">> -> ping(Message, State);
         <<"NICK">> -> nick(Message, State);
@@ -274,6 +275,14 @@ ping(Message, #state{id = Id} = State) ->
     State.
 
 
+%%% QUIT =============================================================
+
+quit(Message, #state{id = Id} = State) ->
+    Nick = irc_parser:get_prefix_nick(Message),
+    irc_channel:delete_user(Id, Nick),
+    State.
+
+
 %%% SASL =============================================================
 
 sasl(Command, Message, #state{id = Id} = State) ->
@@ -424,7 +433,10 @@ rpl_umodeis(Message, #state{id = Id} = State) ->
 
 rpl_channelmodeis(Message, #state{id = Id} = State) ->
     {ok, Channel, Modes} = irc_parser:rpl_channelmodeis(Id, Message),
-    mode_channel(State, Channel, Modes).
+    case irc_channel:is_joined(Id, Channel) of
+        true  -> mode_channel(State, Channel, Modes);
+        false -> []  % do nothing
+    end.
 
 
 %%% 329 - RPL_CREATIONTIME ===========================================
@@ -571,7 +583,7 @@ try_nickserv_recover(Id, Conf) ->
             irc_send:schedule(Id, irc_command:privmsg(NS, R)),
             irc_state:set_nickname(Id, N);
         _Else                                            ->
-            []  %% do nothing
+            []  % do nothing
    end.
 
 

@@ -57,12 +57,18 @@ rpl_channelmodeis(_Config) ->
     true = irc_isupport:set_prefix(?ID, <<"(ohvV)@%+-">>),
     ok = irc_channel:add(?ID, [<<"#channel">>]),
 
-    M = {message,#{},<<"irc.lainchan.org">>,undefined,undefined,<<"324">>,
-         [<<"nickname">>,<<"#channel">>,<<"+rktn">>,<<"key">>]},
     S = {state, ?ID,
          % Set enough values to fill the record. Only `id' is used.
          undefined, undefined, undefined, undefined, undefined, undefined},
-    irc_runtime:message(M, S),
 
+    %% Test that modes are added properly.
+    M1 = {message,#{},<<"irc.lainchan.org">>,undefined,undefined,<<"324">>,
+         [<<"nickname">>,<<"#channel">>,<<"+rktn">>,<<"key">>]},
+    irc_runtime:message(M1, S),
     [{$r, <<>>}, {$k, <<"key">>}, {$t, <<>>}, {$n, <<>>}] =
-        irc_channel:get_modes(?ID, "#channel").
+        irc_channel:get_modes(?ID, "#channel"),
+
+    %% Test that handling is skipped for non-joined channels.
+    M2 = {message,#{},<<"irc.lainchan.org">>,undefined,undefined,<<"324">>,
+         [<<"nickname">>,<<"#fail">>,<<"+rktn">>,<<"key">>]},
+    irc_runtime:message(M2, S).
