@@ -16,23 +16,23 @@
 %% along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %%--------------------------------------------------------------------
 
-%%%-------------------------------------------------------------------
-%%% Module for holding and changing the config options.
-%%%
-%%% To connect to an IRC server using this OTP application you must
-%%% enter the proper configuration using this module.
-%%%
-%%% You must make sure that the config returned is in the correct
-%%% format according to the types provided.
-%%%
-%%% - A unique atom called the Id is used to discern different IRC
-%%%   client instances. This Id is passed to the irc_settings:get/1
-%%%   function which has to return the appropriate configuration.
-%%% - After you get the configuration with get/1, pass the config to
-%%%   the other functions to get access to the various options.
-%%%-------------------------------------------------------------------
 
 -module(irc_config).
+-moduledoc """
+Module for holding and changing the config options.
+
+To connect to an IRC server using this OTP application you must
+enter the proper configuration using this module.
+
+You must make sure that the config returned is in the correct
+format according to the types provided.
+
+- A unique atom called the Id is used to discern different IRC
+  client instances. This Id is passed to the irc_settings:get/1
+  function which has to return the appropriate configuration.
+- After you get the configuration with get/1, pass the config to
+  the other functions to get access to the various options.
+""".
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2]).
@@ -100,6 +100,7 @@
 %%% API
 %%%===================================================================
 
+-doc false.
 -spec start_link() ->
           {ok, Pid :: pid()} |
           {error, Error :: {already_started, pid()}} |
@@ -218,7 +219,7 @@ get_sasl(Config) -> maps:get(sasl, Config, []).
 -spec set_sasl(config(), [ircv3:sasl()]) -> config().
 set_sasl(Config, Sasl) -> Config#{sasl => Sasl}.
 
-
+-doc false.
 -spec next_sasl(Config :: config(), Current :: ircv3:sasl() | false) ->
           {ok, ircv3:sasl()} | empty.
 
@@ -231,13 +232,14 @@ nsasl([],            _)            -> empty.
 
 %%% cap_want =========================================================
 
-%%% The `cap_want'  setting is a  list of IRCv3 capabilities  that the
-%%% bot will enable if they are supported by the server.
-%%%
-%%% Only the capabilities in this list  will be enabled, so if you are
-%%% going to change the defaults make sure to include the capabilities
-%%% for any drastikbot features you want to use (eg. SASL).
+-doc """
+The `cap_want`  setting is a  list of IRCv3 capabilities  that the
+bot will enable if they are supported by the server.
 
+Only the capabilities in this list  will be enabled, so if you are
+going to change the defaults make sure to include the capabilities
+for any drastikbot features you want to use (eg. SASL).
+""".
 -spec get_cap_want(config()) -> [ircv3:cap()].
 get_cap_want(Config) -> maps:get(cap_want, Config, [<<"sasl">>]).
 
@@ -257,6 +259,7 @@ set_handler(Config, Handler) -> Config#{handler => Handler}.
 %%% gen_server callbacks
 %%%===================================================================
 
+-doc false.
 -spec init(Id :: atom()) -> {ok, State :: #state{}}.
 
 init(_Id) ->
@@ -265,7 +268,7 @@ init(_Id) ->
 
 %%--------------------------------------------------------------------
 
-
+-doc false.
 handle_call({get, Id}, _From, #state{confs=Confs} = State) ->
     case Confs of
         #{Id := Conf} ->
@@ -280,5 +283,6 @@ handle_call(_Request, _From, State) ->
 
 %%--------------------------------------------------------------------
 
+-doc false.
 handle_cast(_Request, State) ->
     {noreply, State}.

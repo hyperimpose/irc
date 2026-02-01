@@ -83,10 +83,12 @@
 get_awaylen(Id) -> ?GET(Id, awaylen, undefined).
 
 
+-doc false.
 set_awaylen(Id, <<>>) -> ?SET(Id, awaylen, undefined);
 set_awaylen(Id, L)    -> ?SET(Id, awaylen, binary_to_integer(L)).
 
 
+-doc false.
 unset_awaylen(Id) -> ?SET(Id, awaylen, undefined).
 
 
@@ -97,10 +99,12 @@ unset_awaylen(Id) -> ?SET(Id, awaylen, undefined).
 get_callerid(Id) -> ?GET(Id, callerid, undefined).
 
 
+-doc false.
 set_callerid(Id, <<>>)                 -> ?SET(Id, callerid, $g);
 set_callerid(Id, <<Letter, _/binary>>) -> ?SET(Id, callerid, Letter).
 
 
+-doc false.
 unset_callerid(Id) -> ?SET(Id, callerid, undefined).
 
 
@@ -114,9 +118,11 @@ unset_callerid(Id) -> ?SET(Id, callerid, undefined).
 get_casemapping(Id) -> ?GET(Id, casemapping, <<"rfc1459">>).
 
 
+-doc false.
 set_casemapping(Id, Value) -> ?SET(Id, casemapping, Value).
 
 
+-doc false.
 unset_casemapping(Id) -> ?SET(Id, casemapping, <<"rfc1459">>).
 
 
@@ -132,6 +138,7 @@ get_chanlimit(Id, Type) ->
     end.
 
 
+-doc false.
 set_chanlimit(Id, Arg) -> ?SET(Id, chanlimit, set_chanlimit1(Arg)).
 
 set_chanlimit1(Args) ->
@@ -143,7 +150,7 @@ set_chanlimit1(Args) ->
     lists:foldl(F, #{}, string:split(Args, <<",">>, all)).
 
 
-
+-doc false.
 unset_chanlimit(Id) -> ?SET(Id, chanlimit, #{}).
 
 
@@ -178,11 +185,13 @@ get_chanmodes(Id, d) ->
     end.
 
 
+-doc false.
 set_chanmodes(Id, Args) ->
     Modes = string:split(Args, <<",">>, all),
     ?SET(Id, chanmodes, Modes).
 
 
+-doc false.
 unset_chanmodes(Id) -> ?SET(Id, chanmodes, []).
 
 
@@ -195,9 +204,11 @@ unset_chanmodes(Id) -> ?SET(Id, chanmodes, []).
 get_channellen(Id) -> ?GET(Id, channellen, 200).
 
 
+-doc false.
 set_channellen(Id, L) -> ?SET(Id, channellen, binary_to_integer(L)).
 
 
+-doc false.
 unset_channellen(Id) -> ?SET(Id, channellen, 200).
 
 
@@ -208,6 +219,12 @@ unset_channellen(Id) -> ?SET(Id, channellen, 200).
 get_chantypes(Id) -> ?GET(Id, chantypes, <<>>).
 
 
+-doc """
+Returns `true` if `Channel` is a valid channel name; otherwise, returns `false`.
+
+The check is performed using the network's advertised channel type prefixes
+(CHANTYPES).
+""".
 -spec is_channel(Id :: atom(), Channel :: iodata()) -> boolean().
 
 is_channel(Id, Channel) ->
@@ -220,9 +237,11 @@ is_channel(Id, Channel) ->
     end.
 
 
+-doc false.
 set_chantypes(Id, Types) -> ?SET(Id, chantypes, Types).
 
 
+-doc false.
 unset_chantypes(Id) -> ?SET(Id, chantypes, <<>>).
 
 
@@ -253,9 +272,12 @@ has_elist1(Elist, Mode) ->
     end.
 
 
+-doc false.
 set_elist(Id, <<>>) -> unset_elist(Id);
 set_elist(Id, Args) -> ?SET(Id, elist, Args).
 
+
+-doc false.
 unset_elist(Id) -> ?SET(Id, elist, undefined).
 
 
@@ -266,10 +288,12 @@ unset_elist(Id) -> ?SET(Id, elist, undefined).
 get_excepts(Id) -> ?GET(Id, excepts, undefined).
 
 
+-doc false.
 set_excepts(Id, <<Letter, _/binary>>) -> ?SET(Id, excepts, Letter);
 set_excepts(Id, <<>>)                 -> ?SET(Id, excepts, $e).
 
 
+-doc false.
 unset_excepts(Id) -> ?SET(Id, excepts, undefined).
 
 
@@ -280,6 +304,7 @@ unset_excepts(Id) -> ?SET(Id, excepts, undefined).
 get_extban(Id) -> ?GET(Id, extban, undefined).
 
 
+-doc false.
 set_extban(Id, <<>>) ->  % Invalid args
     unset_extban(Id);
 set_extban(Id, Args) ->
@@ -287,6 +312,7 @@ set_extban(Id, Args) ->
     ?SET(Id, extban, {Prefix, Types}).
 
 
+-doc false.
 unset_extban(Id) -> ?SET(Id, extban, undefined).
 
 
@@ -299,9 +325,11 @@ unset_extban(Id) -> ?SET(Id, extban, undefined).
 get_hostlen(Id) -> ?GET(Id, hostlen, 63).
 
 
+-doc false.
 set_hostlen(Id, L) -> ?SET(Id, hostlen, binary_to_integer(L)).
 
 
+-doc false.
 unset_hostlen(Id) -> ?SET(Id, hostlen, 63).
 
 
@@ -312,10 +340,12 @@ unset_hostlen(Id) -> ?SET(Id, hostlen, 63).
 get_invex(Id) -> ?GET(Id, invex, undefined).
 
 
+-doc false.
 set_invex(Id, <<Letter, _/binary>>) -> ?SET(Id, invex, Letter);
 set_invex(Id, <<>>)                 -> ?SET(Id, invex, $I).
 
 
+-doc false.
 unset_invex(Id) -> ?SET(Id, invex, undefined).
 
 
@@ -326,10 +356,12 @@ unset_invex(Id) -> ?SET(Id, invex, undefined).
 get_kicklen(Id) -> ?GET(Id, kicklen, undefined).
 
 
+-doc false.
 set_kicklen(Id, <<>>) -> ?SET(Id, kicklen, undefined);
 set_kicklen(Id, L)    -> ?SET(Id, kicklen, binary_to_integer(L)).
 
 
+-doc false.
 unset_kicklen(Id) -> ?SET(Id, kicklen, undefined).
 
 
@@ -340,6 +372,7 @@ unset_kicklen(Id) -> ?SET(Id, kicklen, undefined).
 get_maxlist(Id) -> ?GET(Id, maxlist, []).
 
 
+-doc false.
 set_maxlist(Id, Args)    ->
     F = fun (X, Acc) -> [Modes, Limit] = string:split(X, <<":">>),
                         [{Modes, binary_to_integer(Limit)} | Acc]
@@ -348,6 +381,7 @@ set_maxlist(Id, Args)    ->
     ?SET(Id, maxlist, L).
 
 
+-doc false.
 unset_maxlist(Id) -> ?SET(Id, maxlist, []).
 
 
@@ -358,10 +392,12 @@ unset_maxlist(Id) -> ?SET(Id, maxlist, []).
 get_maxtargets(Id) -> ?GET(Id, maxtargets, undefined).
 
 
+-doc false.
 set_maxtargets(Id, <<>>) -> ?SET(Id, maxtargets, nolimit);
 set_maxtargets(Id, L)    -> ?SET(Id, maxtargets, binary_to_integer(L)).
 
 
+-doc false.
 unset_maxtargets(Id) -> ?SET(Id, maxtargets, undefined).
 
 
@@ -372,10 +408,12 @@ unset_maxtargets(Id) -> ?SET(Id, maxtargets, undefined).
 get_modes(Id) -> ?GET(Id, modes, undefined).
 
 
+-doc false.
 set_modes(Id, <<>>) -> ?SET(Id, modes, nolimit);
 set_modes(Id, L)    -> ?SET(Id, modes, binary_to_integer(L)).
 
 
+-doc false.
 unset_modes(Id) -> ?SET(Id, modes, undefined).
 
 
@@ -386,9 +424,11 @@ unset_modes(Id) -> ?SET(Id, modes, undefined).
 get_network(Id) -> ?GET(Id, network, undefined).
 
 
+-doc false.
 set_network(Id, Network) -> ?SET(Id, network, Network).
 
 
+-doc false.
 unset_network(Id) -> ?SET(Id, network, undefined).
 
 
@@ -401,9 +441,11 @@ unset_network(Id) -> ?SET(Id, network, undefined).
 get_nicklen(Id) -> ?GET(Id, nicklen, 9).
 
 
+-doc false.
 set_nicklen(Id, L) -> ?SET(Id, nicklen, binary_to_integer(L)).
 
 
+-doc false.
 unset_nicklen(Id) -> ?SET(Id, nicklen, 9).
 
 
@@ -416,6 +458,7 @@ unset_nicklen(Id) -> ?SET(Id, nicklen, 9).
 get_prefix(Id) -> ?GET(Id, prefix, [{$o, $@}, {$v, $+}]).  % TODO: undefined is prolly empty in modern IRC
 
 
+-doc false.
 set_prefix(Id, Args) -> ?SET(Id, prefix, set_prefix1(Args, [])).
 
 set_prefix1(<<$(, R/binary>>, Acc) -> set_prefix1(R, Acc);
@@ -426,6 +469,7 @@ set_prefix2(<<C, R/binary>>, [M | T], Acc) -> set_prefix2(R, T, [{M, C} | Acc]);
 set_prefix2(<<>>, [], Acc) -> lists:reverse(Acc).
 
 
+-doc false.
 unset_prefix(Id) -> ?SET(Id, prefix, [{$o, $@}, {$v, $+}]).
 
 
@@ -436,9 +480,11 @@ unset_prefix(Id) -> ?SET(Id, prefix, [{$o, $@}, {$v, $+}]).
 get_safelist(Id) -> ?GET(Id, safelist, false).
 
 
+-doc false.
 set_safelist(Id) -> ?SET(Id, safelist, true).
 
 
+-doc false.
 unset_safelist(Id) -> ?SET(Id, safelist, false).
 
 
@@ -449,9 +495,11 @@ unset_safelist(Id) -> ?SET(Id, safelist, false).
 get_statusmsg(Id) -> ?GET(Id, statusmsg, undefined).
 
 
+-doc false.
 set_statusmsg(Id, Args) -> ?SET(Id, statusmsg, Args).
 
 
+-doc false.
 unset_statusmsg(Id) -> ?SET(Id, statusmsg, undefined).
 
 
@@ -462,6 +510,7 @@ unset_statusmsg(Id) -> ?SET(Id, statusmsg, undefined).
 get_targmax(Id) -> ?GET(Id, targmax, []).
 
 
+-doc false.
 set_targmax(Id, Args) ->
     F = fun (X, Acc) -> case string:split(X, <<":">>) of
                             [Cmd, <<>>] -> [{Cmd, nolimit}];
@@ -472,6 +521,7 @@ set_targmax(Id, Args) ->
     ?SET(Id, targmax, L).
 
 
+-doc false.
 unset_targmax(Id) -> ?SET(Id, targmax, []).
 
 
@@ -482,10 +532,12 @@ unset_targmax(Id) -> ?SET(Id, targmax, []).
 get_topiclen(Id) -> ?GET(Id, topiclen, undefined).
 
 
+-doc false.
 set_topiclen(Id, <<>>) -> unset_topiclen(Id);
 set_topiclen(Id, L)    -> ?SET(Id, topiclen, binary_to_integer(L)).
 
 
+-doc false.
 unset_topiclen(Id) -> ?SET(Id, topiclen, undefined).
 
 
@@ -496,10 +548,12 @@ unset_topiclen(Id) -> ?SET(Id, topiclen, undefined).
 get_userlen(Id) -> ?GET(Id, userlen, undefined).
 
 
+-doc false.
 set_userlen(Id, <<>>) -> unset_userlen(Id);
 set_userlen(Id, L)    -> ?SET(Id, userlen, binary_to_integer(L)).
 
 
+-doc false.
 unset_userlen(Id) ->  ?SET(Id, userlen, undefined).
 
 
@@ -510,7 +564,9 @@ unset_userlen(Id) ->  ?SET(Id, userlen, undefined).
 get_whox(Id) -> ?GET(Id, whox, false).
 
 
+-doc false.
 set_whox(Id) -> ?SET(Id, whox, true).
 
 
+-doc false.
 unset_whox(Id) -> ?SET(Id, whox, false).

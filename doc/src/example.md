@@ -1,0 +1,82 @@
+# Usage Example
+This is an example implementation of a simple IRC echo bot using this IRC client
+OTP application.
+
+## Requirements
+To install and use this library you need to install the following:
+- Erlang 26 or later
+- rebar3
+
+## Setting up the rebar project
+Run the following command to setup a new rebar3 project for our bot:
+
+``` sh
+$ rebar3 new app ircbot
+```
+
+This will create a directory called `ircbot` that contains the files for our
+project.
+
+## rebar.config
+Change to the `ircbot` directory we created in the previous step and then edit
+the `rebar.config` file so that it looks like this:
+
+``` erlang
+{erl_opts, [debug_info]}.
+{deps, [{irc, {git, "https://github.com/hyperimpose/irc.git", {branch, "master"}}}]}.
+
+{shell, [{apps, [irc]}]}.
+```
+
+## ircbot.erl
+In the file `src/ircbot.erl` we will implement the actual logic for our bot.
+Edit the file so that it looks like this:
+
+``` erlang
+-module(ircbot).
+
+-export([message/2]).
+
+
+message(Id, Message) ->
+    case irc_parser:get_command(Message) of
+        <<"PRIVMSG">> ->
+            %% Extract the source of the message and the text
+            {ok, Recv, Text} = irc_parser:privmsg(Message),
+            %% Send the same message back
+            irc_send:schedule(Id, irc_make:privmsg(Id, Recv, Text));
+        _Command ->
+            %% Ignore any other command
+            void
+    end.
+```
+
+Our handler function `message/2` takes two arguements: the client Id and the Message itself.
+
+We extract the IRC command from the Message and check to see if it a PRIVMSG (a normal text
+message sent to an IRC channel or privately with the bot).  If it is indeed a PRIVMSG we
+send the same message back, otherwise we ignore the message.
+
+Later we will configure `message/2` to be our handler function.
+
+## Putting it all together
+
+You can now compile everything and open a shell with:
+``` sh
+$ rebar3 shell
+```
+
+Once you are in the shell with everything loaded, you can configure and start the IRC client with:
+
+``` erlang
+irc_config:set(example_id, #{address  => "irc.example.org",
+                             port     => 6697,
+                             tls      => true,
+                             nickname => "my_irc_client",
+                             user     => "my_irc_client",
+                             realname => "My IRC client",
+                             channels => #{"#channel" => <<>>},
+                             handler  => fun ircbot:message/2}).
+irc:connect(example_id).
+```
+

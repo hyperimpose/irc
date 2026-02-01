@@ -33,5 +33,32 @@ Client identity, authentication, and user mode information:
 - `irc_state:get_modes/1`
 
 ## irc_channel
+The `m:irc_channel` module provides information about IRC channels the client
+has joined.
+
+Common queries include the following; this list is *not* exhaustive.
+
+List joined channels:
+- `irc_channel:list/1`
+- `irc_channel:is_joined/2`
+
+Channel modes:
+- `irc_channel:get_modes/2`
+
+Users currently present along with their prefixes:
+- `irc_channel:get_users/2`
 
 ## irc_isupport
+
+> #### RPL_ISUPPORT (005) {: .neutral}
+>
+> *"IRC servers and networks implement many different IRC features, limits, and
+> protocol options that clients should be aware of. The RPL_ISUPPORT (005)
+> numeric is designed to advertise these features to clients on connection
+> registration, providing a simple way for clients to change their behaviour
+> based on what is implemented on the server."*
+>
+> — [modern.ircdocs.horse](https://modern.ircdocs.horse/#feature-advertisement)
+
+The client tracks a selected subset of the values in the 005 ISUPPORT numeric
+and makes them available via the `m:irc_isupport` module.
