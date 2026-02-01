@@ -4,7 +4,7 @@
 
 *This is a pre-release version and its API may break*
 
-An irc client library for Erlang.
+An irc client library for Erlang 28 or later.
 
 ** Main Features
 Some of the features offered are:

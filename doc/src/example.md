@@ -4,7 +4,7 @@ OTP application.
 
 ## Requirements
 To install and use this library you need to install the following:
-- Erlang 26 or later
+- Erlang 28 or later
 - rebar3
 
 ## Setting up the rebar project
