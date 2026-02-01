@@ -24,9 +24,12 @@ You can include this library in your projects as a dependency in rebar.config:
 
 ** Documentation
 
-- [[./doc/guide.org][User's guide]] :: Building, basic concepts
-- [[./doc/usage.org][Usage Example]] :: An example echo bot
-- [[./doc/reference.org][Reference Manual]] :: List of all the modules and functions offered
+The library is documented using ExDoc. To build the documentation run:
+#+BEGIN_SRC bash
+  $ rebar3 ex_doc
+#+END_SRC
+
+You can view the generated configuration in ~doc/exdoc/~.
 
 ** License
 
