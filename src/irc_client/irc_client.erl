@@ -1,5 +1,5 @@
 %%--------------------------------------------------------------------
-%% Copyright 2023 hyperimpose.org
+%% Copyright 2023, 2026 hyperimpose.org
 %%
 %% This file is part of irc.
 %%
@@ -142,40 +142,56 @@ terminate(_Reason, _State) ->
 %%% Initialize connection ============================================
 
 connect(#state{id = Id, conf = Conf, wait = Wait} = State) ->
-    Addr = irc_config:get_address(Conf),
-    Port = irc_config:get_port(Conf),
-    Size = irc_config:get_packet_size(Conf),
     Handler = irc_config:get_handler(Conf),
-
     State1 = State#state{handler = Handler},
 
-    Opt = [binary, {active, once}, {packet, line}, {packet_size, Size}],
+    maybe
+        {ok, Socket1} ?= setup_socket(Conf),
+        {ok, Socket2, Module} ?= maybe_tls(Conf, Socket1),
 
-    case gen_tcp:connect(Addr, Port, Opt, ?SOCKET_TIMEOUT) of
-        {ok, Socket}   ->
-            State2 = wait_reset(State1),
-            connect2(State2, Conf, Socket);
+        State2 = State1#state{socket = Socket2, module = Module},
+        State3 = wait_reset(State2),
+
+        irc_send:set_mode(Id, irc_config:get_irc_send_mode(Conf)),
+        irc_send:set_socket(Id, Socket2, Module),  % Setup the send scheduler
+
+        registration(State3, Conf)
+    else
         {error, Error} ->
             ?LOG_ERROR("[IRC:~p] ~p", [Id, Error]),
             erlang:send_after(Wait, self(), connect),
             wait_increment(State1)
     end.
 
-connect2(State, Conf, Socket) ->
-    {S, M} = case irc_config:get_tls(Conf) of
-                 true ->
-                     Opt = [{verify, verify_none}],
-                     {ok, TlsSocket} = ssl:connect(Socket, Opt, ?SOCKET_TIMEOUT),
-                     {TlsSocket, ssl};
-                 false ->
-                     {Socket, gen_tcp}
-             end,
-    connect3(State#state{socket = S, module = M}, Conf).
 
-connect3(#state{id = Id, socket = Socket, module = Module} = State, Conf) ->
-    irc_send:set_mode(Id, irc_config:get_irc_send_mode(Conf)),
-    irc_send:set_socket(Id, Socket, Module),  % Setup the send scheduler
-    registration(State, Conf).
+setup_socket(Conf) ->
+    Addr = irc_config:get_address(Conf),
+    Port = irc_config:get_port(Conf),
+    Size = irc_config:get_packet_size(Conf),
+
+    Opt = [binary, {active, once}, {packet, line}, {packet_size, Size}],
+
+    %% Try IPv6, then fallback to IPv4
+    case gen_tcp:connect(Addr, Port, [inet6 | Opt], ?SOCKET_TIMEOUT) of
+        {error, _Error} ->
+            gen_tcp:connect(Addr, Port, Opt, ?SOCKET_TIMEOUT);
+        {ok, Socket} ->
+            {ok, Socket}
+    end.
+
+
+maybe_tls(Conf, Socket) ->
+    case irc_config:get_tls(Conf) of
+        false ->
+            {ok, Socket, gen_tcp};
+        true ->
+            Opt = [{verify, verify_none}],
+            case ssl:connect(Socket, Opt, ?SOCKET_TIMEOUT) of
+                {ok, TlsSocket} -> {ok, TlsSocket, ssl};
+                {error, Error}  -> {error, Error}
+            end
+    end.
+
 
 
 %% This function will send the appropriate messages to the IRC server
