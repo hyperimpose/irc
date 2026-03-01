@@ -74,10 +74,8 @@ init(Id, Args, Sasl) ->
     case irc_config:next_sasl(irc_state:get_config(Id), Sasl) of
         {ok, S}   -> init1(S, Id, Args);
         empty     ->
-            % All the auth methods failed:
-            % stop the client process from connecting
-            % show error message to the user using logs
-            false  % todo
+            ?LOG_ERROR("[IRC:~p] All SASL methods failed", [Id]),
+            false
     end.
 
 init1(Sasl, Id, <<>>) -> init5(Sasl, Id);

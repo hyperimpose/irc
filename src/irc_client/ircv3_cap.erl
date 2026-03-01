@@ -62,7 +62,10 @@ cap_ls({cap_ls, _Cid, Caps}, #state{id = Id, cap = CS} = S) ->
 
     Req = ircv3:get_cap_req(Id),
     CS2 = set_cap_req(CS1, Req),
-    irc_send:schedule(Id, irc_make:cap_req(Req)),
+    case Req of
+        [] -> try_cap_end(CS2, Id);  % No capabilities to request
+        _  -> irc_send:schedule(Id, irc_make:cap_req(Req))
+    end,
 
     S#state{cap = CS2}.
 

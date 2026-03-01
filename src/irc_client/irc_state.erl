@@ -59,23 +59,7 @@
 
 
 %%% The `auth' setting is the method the bot used for authentication.
-%%%
-%%% The `auth_conf' setting  is a list of  authentication methods used
-%%% with  the  IRC   server.  The  methods  in  the   list  are  tried
-%%% incrementally until one of them succeeds.
-%%%
-%%% If none of the methods in the  list succeed the bot will abort the
-%%% connection with the IRC server. To proceed anyway, you may add the
-%%% atom  `false' at  the end  of  the list,  which tells  the bot  to
-%%% connect without authentication. An empty  list also means that the
-%%% bot should not authenticate.
-%%%
-%%% If the  list starts  with a  SASL method the  bot will  attempt to
-%%% authenticate during  IRCv3 capability negotiation  (before joining
-%%% any channels).
-%%%
-%%% See  the auth()  type for  details on  the format  of the  various
-%%% methods.
+
 
 %%%===================================================================
 %%% Connection API
