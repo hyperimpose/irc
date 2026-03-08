@@ -210,7 +210,8 @@ mode_user(#state{id = Id} = State, Target, Modes) ->
         true  -> mode_user(State, Modes);
         false ->
             %% We should not be able to receive user modes for other users.
-            ?LOG_WARNING("[IRC:~p] MODE - User mode for another user.", [Id])
+            ?LOG_WARNING("[IRC:~p] MODE - User mode for another user.", [Id]),
+            State
     end.
 
 mode_user(#state{id = Id} = State, Modes) ->
