@@ -157,7 +157,7 @@ notice(Id, Recv, Texts, #{mode := fractional} = Opts) ->
                 receiver => Recv,
                 message  => irc_command:notice(Recv, Out)}};
 
-notice(Id, Recv, Text, divide) ->
+notice(Id, Recv, Text, #{mode := divide}) ->
     MaxSize = notice_max_size(Id, Recv),
     TextList = irc_text:divide(clean_up(Text), MaxSize),
     F = fun (X) -> {message, #{command => notice,
